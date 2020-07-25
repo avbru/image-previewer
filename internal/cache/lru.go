@@ -5,8 +5,10 @@ import (
 	"sync"
 )
 
-type Key string
-type Value interface{}
+type (
+	Key   string
+	Value interface{}
+)
 
 type Cache interface {
 	Set(key Key, value Value) bool
@@ -36,12 +38,12 @@ func NewCache(cap int) *LRUCache {
 	}
 }
 
-//Set just updates values or insert key/val to front of short-term FIFO.
+// Set just updates values or insert key/val to front of short-term FIFO.
 func (c *LRUCache) Set(key Key, value Value) bool {
 	c.Lock()
 	defer c.Unlock()
 
-	//If item found in cache, just update value
+	// If item found in cache, just update value
 	if item, ok := c.items[key]; ok {
 		item.Value = cacheItem{key, value}
 		c.list.MoveToFront(item)
@@ -49,7 +51,7 @@ func (c *LRUCache) Set(key Key, value Value) bool {
 		return true
 	}
 
-	//Remove back element of list, if list oversized
+	// Remove back element of list, if list oversized
 	if c.list.Len() >= c.cap {
 		backItem := c.list.Back()
 		c.list.Remove(backItem)
