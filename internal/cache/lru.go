@@ -1,4 +1,4 @@
-package cache //nolint:golint,stylecheck
+package cache
 
 import (
 	"container/list"
@@ -20,7 +20,7 @@ type cacheItem struct {
 	val Value
 }
 
-type lruCache struct {
+type LRUCache struct {
 	sync.Mutex
 	cap                 int
 	list                *list.List
@@ -28,16 +28,16 @@ type lruCache struct {
 	hitCount, missCount int
 }
 
-func NewCache(cap int) *lruCache {
-	return &lruCache{
-		cap:cap,
+func NewCache(cap int) *LRUCache {
+	return &LRUCache{
+		cap:   cap,
 		list:  list.New(),
 		items: make(map[interface{}]*list.Element, cap),
 	}
 }
 
 //Set just updates values or insert key/val to front of short-term FIFO.
-func (c *lruCache) Set(key Key, value Value) bool {
+func (c *LRUCache) Set(key Key, value Value) bool {
 	c.Lock()
 	defer c.Unlock()
 
@@ -45,7 +45,7 @@ func (c *lruCache) Set(key Key, value Value) bool {
 	if item, ok := c.items[key]; ok {
 		item.Value = cacheItem{key, value}
 		c.list.MoveToFront(item)
-		c.items[key]=item
+		c.items[key] = item
 		return true
 	}
 
@@ -60,18 +60,20 @@ func (c *lruCache) Set(key Key, value Value) bool {
 	return false
 }
 
-func (c *lruCache) Get(key Key) (Value, bool) {
+func (c *LRUCache) Get(key Key) (Value, bool) {
 	c.Lock()
 	defer c.Unlock()
 	item, ok := c.items[key]
 	if ok {
 		c.list.MoveToFront(item)
+		c.hitCount++
 		return item.Value.(cacheItem).val, true
 	}
+	c.missCount++
 	return nil, false
 }
 
-func (c *lruCache) Clear() {
+func (c *LRUCache) Clear() {
 	c.Lock()
 	defer c.Unlock()
 
@@ -79,7 +81,7 @@ func (c *lruCache) Clear() {
 	c.items = make(map[interface{}]*list.Element, c.cap)
 }
 
-func (c *lruCache) List() []Value {
+func (c *LRUCache) List() []Value {
 	c.Lock()
 	items := make([]Value, c.cap)
 	defer c.Unlock()
