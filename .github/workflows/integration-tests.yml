@@ -5,7 +5,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build the stack
-        run: docker-compose -p integration-tests -f deployments/docker-compose.tests.yaml run integration-tests
       - name: Test
-        run: docker run --network container:integration-tests
+        run: docker-compose -p integration-tests -f ./deployments/docker-compose.tests.yaml run integration-test

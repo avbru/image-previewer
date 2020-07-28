@@ -44,7 +44,7 @@ var tests = []struct {
 
 func Test_RootHandler(t *testing.T) {
 	srv := os.Getenv("PREVIEWER_URL")
-	require.NotEmpty(t, srv, "server url not provided")
+	require.NotEmpty(t, srv, "server url not provided.")
 
 	client := http.Client{}
 	for _, tt := range tests {
