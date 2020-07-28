@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  integration-tests:
+    image: avbru/integration-tests
+    depends_on:
+      - previewer
+      - fileserver
+    environment:
+      - PREVIEWER_URL=http://previewer
+
+  fileserver:
+    image: avbru/fileserver
+    ports:
+      - '80:80'
+
+  previewer:
+    image: avbru/image-previewer-server
+    ports:
+      - '8080:80'

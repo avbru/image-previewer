@@ -1,19 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
+
+	//TODO _ "github.com/avbru/image-previewer/internal/cache"
+	"github.com/avbru/image-previewer/internal/router"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	println("hello previewer")
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World!")
-	})
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Println(err.Error())
+	handler := router.New(nil) //TODO provide cache to router
+
+	if err := http.ListenAndServe(":80", handler.RootHandler()); err != nil {
+		log.Error().Msg(err.Error())
 		os.Exit(1)
 	}
-	println("buy buy previewer")
 }

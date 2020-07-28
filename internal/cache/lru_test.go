@@ -19,11 +19,11 @@ func TestCache(t *testing.T) {
 	t.Run("simple", func(t *testing.T) {
 		c := NewCache(5)
 
-		wasInCache := c.Set("aaa", 100)
-		require.False(t, wasInCache)
+		inCache := c.Set("aaa", 100)
+		require.False(t, inCache)
 
-		wasInCache = c.Set("bbb", 200)
-		require.False(t, wasInCache)
+		inCache = c.Set("bbb", 200)
+		require.False(t, inCache)
 
 		val, ok := c.Get("aaa")
 		require.True(t, ok)
@@ -33,8 +33,8 @@ func TestCache(t *testing.T) {
 		require.True(t, ok)
 		require.Equal(t, 200, val)
 
-		wasInCache = c.Set("aaa", 300)
-		require.True(t, wasInCache)
+		inCache = c.Set("aaa", 300)
+		require.True(t, inCache)
 
 		val, ok = c.Get("aaa")
 		require.True(t, ok)

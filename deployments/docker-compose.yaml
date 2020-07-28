@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  previewer:
+    image: avbru/image-previewer-server
+    restart: always
+    ports:
+      - '80:80'
