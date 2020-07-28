@@ -36,7 +36,7 @@ func (h fillHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Info().Msgf("image requested: %dx%d %s ", width, height, imgURI)
-	//TODO check in cache
+	// TODO check in cache
 
 	client := http.Client{}
 	req, err := http.NewRequestWithContext(context.TODO(), "GET", imgURI, strings.NewReader(""))
@@ -64,7 +64,7 @@ func (h fillHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO add to cache
+	// TODO add to cache
 }
 
 func copyHeaders(dst, src http.Header) {
@@ -76,7 +76,7 @@ func copyHeaders(dst, src http.Header) {
 }
 
 func parseURL(r *http.Request) (width int, height int, imgURL string, err error) {
-	//Parse desired image width
+	// Parse desired image width
 	var head string
 	head, r.URL.Path = shiftPath(r.URL.Path)
 	width, err = strconv.Atoi(head)
@@ -84,14 +84,14 @@ func parseURL(r *http.Request) (width int, height int, imgURL string, err error)
 		return
 	}
 
-	//Parse desired image height
+	// Parse desired image height
 	head, r.URL.Path = shiftPath(r.URL.Path)
 	height, err = strconv.Atoi(head)
 	if err != nil {
 		return
 	}
 
-	//Parse desired image URL
+	// Parse desired image URL
 	remoteURL := "http://" + strings.TrimPrefix(r.URL.Path, "/")
 	imgURI, err := url.ParseRequestURI(remoteURL)
 	if err != nil {

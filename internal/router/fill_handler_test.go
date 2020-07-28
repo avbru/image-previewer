@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -78,7 +79,7 @@ func Test_FillHandler(t *testing.T) {
 	for _, tt := range fillTests {
 		tCase := tt
 		t.Run(tCase.method+" "+tCase.url, func(t *testing.T) {
-			req, err := http.NewRequest(tCase.method, srv.URL+tCase.url, strings.NewReader("ff"))
+			req, err := http.NewRequestWithContext(context.Background(), tCase.method, srv.URL+tCase.url, strings.NewReader("ff"))
 
 			require.NoError(t, err)
 			resp, err := client.Do(req)

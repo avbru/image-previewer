@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -41,7 +42,7 @@ func Test_RootHandler(t *testing.T) {
 	for _, tt := range rootTests {
 		tCase := tt
 		t.Run(tCase.url, func(t *testing.T) {
-			req, err := http.NewRequest(tCase.method, srv.URL+tCase.url, nil)
+			req, err := http.NewRequestWithContext(context.Background(), tCase.method, srv.URL+tCase.url, nil)
 			require.NoError(t, err)
 			resp, err := client.Do(req)
 			require.NoError(t, err)

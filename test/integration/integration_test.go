@@ -3,11 +3,12 @@
 package integration
 
 import (
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 var tests = []struct {
@@ -57,7 +58,6 @@ func Test_RootHandler(t *testing.T) {
 
 			body, err := ioutil.ReadAll(resp.Body)
 			require.NoError(t, err)
-
 
 			require.NoError(t, err)
 			require.Equal(t, tCase.wantStatusCode, resp.StatusCode)

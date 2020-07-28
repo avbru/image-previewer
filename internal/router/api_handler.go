@@ -21,7 +21,7 @@ func (h apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	head, r.URL.Path = shiftPath(r.URL.Path)
 	switch head {
 	case "stats":
-		//TODO
+		// TODO
 	case "samples":
 		if _, err := w.Write([]byte(html)); err != nil {
 			httpInternalServerError(w, "", err)
@@ -32,7 +32,7 @@ func (h apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//TODO Refactor to html.Template.
+// TODO Refactor to html.Template.
 const html = `
 <!DOCTYPE HTML>
 <html>
