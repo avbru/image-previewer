@@ -1,6 +1,5 @@
 ![Test](https://github.com/avbru/image-previewer/workflows/Test/badge.svg?branch=master)
 ![Test](https://github.com/avbru/image-previewer/workflows/Test/badge.svg?branch=master)
-[![Coverage](https://coveralls.io/repos/github/avbru/image-previewer/badge.svg?branch=master)](https://coveralls.io/github/avbru/image-previewer?branch=master)
 
 Specification: https://github.com/OtusGolang/final_project/blob/master/03-image-previewer.md
 
