@@ -9,6 +9,7 @@ run_integration_test:
 	docker build -t avbru/image-previewer-server .
 	./scripts/run-integration-tests.sh
 lint:
+	gofumpt -s -w .
 	golangci-lint run ./...
 
 .PHONY: all test clean

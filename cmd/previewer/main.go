@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 
-	// TODO _ "github.com/avbru/image-previewer/internal/cache"
 	"github.com/avbru/image-previewer/internal/router"
 	"github.com/rs/zerolog/log"
 )
