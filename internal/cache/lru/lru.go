@@ -10,7 +10,7 @@ type cacheItem struct {
 	val interface{}
 }
 
-//LRU is simple LRU cache with doubly linked list under the hood
+// LRU is simple LRU cache with doubly linked list under the hood.
 type LRU struct {
 	sync.Mutex
 	cap   int
@@ -18,7 +18,7 @@ type LRU struct {
 	items map[interface{}]*list.Element
 }
 
-//New returns new LRU cache with given capacity
+// New returns new LRU cache with given capacity.
 func New(cap int) *LRU {
 	return &LRU{
 		cap:   cap,
@@ -27,7 +27,7 @@ func New(cap int) *LRU {
 	}
 }
 
-//Set just updates values or insert key/val.
+// Set just updates values or insert key/val.
 func (c *LRU) Set(key interface{}, value interface{}) (deleted interface{}, updated bool) {
 	c.Lock()
 	defer c.Unlock()
@@ -53,7 +53,7 @@ func (c *LRU) Set(key interface{}, value interface{}) (deleted interface{}, upda
 	return deletedValue, false
 }
 
-//Get returns cached value and found flag by given key.
+// Get returns cached value and found flag by given key.
 func (c *LRU) Get(key interface{}) (interface{}, bool) {
 	c.Lock()
 	defer c.Unlock()
@@ -65,7 +65,7 @@ func (c *LRU) Get(key interface{}) (interface{}, bool) {
 	return nil, false
 }
 
-//Clear drops cache.
+// Clear drops cache.
 func (c *LRU) Clear() {
 	c.Lock()
 	defer c.Unlock()
@@ -74,7 +74,7 @@ func (c *LRU) Clear() {
 	c.items = make(map[interface{}]*list.Element, c.cap)
 }
 
-//Len returns current cache size.
+// Len returns current cache size.
 func (c *LRU) Len() int {
 	c.Lock()
 	defer c.Unlock()

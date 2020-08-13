@@ -53,13 +53,12 @@ func New(opts ...Option) (*CacheService, error) {
 		maxImageSize: options.maxImageSize,
 		cache:        lru.New(options.cacheSize),
 		store:        store,
-		// inProcess: make(map[string]*sync.RWMutex),
 	}
 
 	return &cacheService, nil
 }
 
-//GetStats returns current usage statistics
+// GetStats returns current usage statistics.
 func (s *CacheService) GetStats() (models.Stat, error) {
 	var stat models.Stat
 	stat.HitCount = atomic.LoadUint64(&s.hitCount)
@@ -139,8 +138,7 @@ func (s *CacheService) addToCache(ctx context.Context, img models.Image, buf io.
 		return
 	}
 
-	// Once file saved. Add to cache and
-	// remove file evicted from LRU Cache
+	// Once file saved. Add to cache and remove file evicted from LRU Cache
 	removed, _ := s.cache.Set(img.FullURL(), img.FileName())
 	if removed != nil {
 		log.Info().Msg("file removed from cache: " + removed.(string))
