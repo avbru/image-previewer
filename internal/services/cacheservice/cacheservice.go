@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -36,13 +35,6 @@ type CacheService struct {
 	store storages.FileStorage
 }
 
-type Stat struct {
-	HitCount  uint64
-	MissCount uint64
-	Size      int
-	Volume    uint64
-}
-
 func New(opts ...Option) (*CacheService, error) {
 	var options options
 
@@ -59,12 +51,28 @@ func New(opts ...Option) (*CacheService, error) {
 
 	cacheService := CacheService{
 		maxImageSize: options.maxImageSize,
-		cache:        lru.NewCache(options.cacheSize),
+		cache:        lru.New(options.cacheSize),
 		store:        store,
 		// inProcess: make(map[string]*sync.RWMutex),
 	}
 
 	return &cacheService, nil
+}
+
+//GetStats returns current usage statistics
+func (s *CacheService) GetStats() (models.Stat, error) {
+	var stat models.Stat
+	stat.HitCount = atomic.LoadUint64(&s.hitCount)
+	stat.MissCount = atomic.LoadUint64(&s.missCount)
+
+	stat.Size = s.cache.Len()
+
+	var err error
+	stat.Volume, err = s.store.Volume(context.Background())
+	if err != nil {
+		return models.Stat{}, err
+	}
+	return stat, nil
 }
 
 func (s *CacheService) GetWithContext(ctx context.Context, img models.Image, r http.Header, w io.Writer) error {
@@ -93,7 +101,7 @@ func (s *CacheService) GetWithContext(ctx context.Context, img models.Image, r h
 func (s *CacheService) resizeAndCache(ctx context.Context, img models.Image, r http.Header, w io.Writer) error {
 	client := http.Client{}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", img.URL, strings.NewReader(""))
+	req, err := http.NewRequestWithContext(ctx, "GET", img.URL, nil)
 	if err != nil {
 		return fmt.Errorf("resize can't create request to remote host: %w", err)
 	}
@@ -138,21 +146,6 @@ func (s *CacheService) addToCache(ctx context.Context, img models.Image, buf io.
 		log.Info().Msg("file removed from cache: " + removed.(string))
 		s.store.DeleteFile(ctx, removed.(string))
 	}
-}
-
-func (s *CacheService) GetStats() (models.Stat, error) {
-	var stat models.Stat
-	stat.HitCount = atomic.LoadUint64(&s.hitCount)
-	stat.MissCount = atomic.LoadUint64(&s.missCount)
-
-	stat.Size = s.cache.Len()
-
-	var err error
-	stat.Volume, err = s.store.Volume(context.Background())
-	if err != nil {
-		return models.Stat{}, err
-	}
-	return stat, nil
 }
 
 func copyHeaders(dst, src http.Header) {

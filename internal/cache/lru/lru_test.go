@@ -11,13 +11,13 @@ import (
 
 func TestCache(t *testing.T) {
 	t.Run("empty cache", func(t *testing.T) {
-		c := NewCache(10)
+		c := New(10)
 		_, ok := c.Get("aaa")
 		require.False(t, ok)
 	})
 
 	t.Run("simple", func(t *testing.T) {
-		c := NewCache(5)
+		c := New(5)
 
 		_, inCache := c.Set("aaa", 100)
 		require.False(t, inCache)
@@ -46,7 +46,7 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("capacity", func(t *testing.T) {
-		c := NewCache(2)
+		c := New(2)
 		_, _ = c.Set("a", 100)
 		_, _ = c.Set("b", 200)
 		deleted, _ := c.Set("c", 300)
@@ -58,7 +58,7 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		c := NewCache(1)
+		c := New(1)
 		_, _ = c.Set("aaa", 100)
 		c.Clear()
 
@@ -68,7 +68,7 @@ func TestCache(t *testing.T) {
 }
 
 func TestCacheMultithreading(t *testing.T) {
-	c := NewCache(10)
+	c := New(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(3)
 
