@@ -1,8 +1,10 @@
 ![Test](https://github.com/avbru/image-previewer/workflows/Test/badge.svg?branch=master)
 ![integration-tests](https://github.com/avbru/image-previewer/workflows/integration-tests/badge.svg)
 ![golangci-lint](https://github.com/avbru/image-previewer/workflows/golangci-lint/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/avbru/image-previewer)](https://goreportcard.com/report/github.com/avbru/image-previewer)
 
 Specification: https://github.com/OtusGolang/final_project/blob/master/03-image-previewer.md
+
 Router inspired by: https://github.com/kulti/otus_open_lesson/tree/v11052020/internal/router
 
 
