@@ -10,7 +10,7 @@ services:
       - previewer
       - fileserver
     environment:
-      - PREVIEWER_URL=http://previewer
+      - PREVIEWER_URL=http://previewer:8080
   fileserver:
     container_name: fileserver
     build: ../fileserver
@@ -21,4 +21,6 @@ services:
     container_name: previewer
     build: ../
     ports:
-      - '8080:80'
+      - '8080:8080'
+    env_file:
+      - test.env

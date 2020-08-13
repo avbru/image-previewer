@@ -1,23 +1,23 @@
 package router
 
 import (
-	"context"
-	"io"
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 
-	"github.com/avbru/image-previewer/internal/cache"
-	"github.com/avbru/image-previewer/internal/resizer"
+	"github.com/avbru/image-previewer/internal/models"
+	"github.com/avbru/image-previewer/internal/services"
+
 	"github.com/rs/zerolog/log"
 )
 
 type fillHandler struct {
-	cache cache.Cache
+	cache services.CacheService
 }
 
-func newFillHandler(cache cache.Cache) fillHandler {
+func newFillHandler(cache services.CacheService) fillHandler {
 	return fillHandler{
 		cache: cache,
 	}
@@ -25,82 +25,50 @@ func newFillHandler(cache cache.Cache) fillHandler {
 
 func (h fillHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
-		httpMethodNotAllowed(w, "method not allowed", nil)
+		httpMethodNotAllowed(w, r.Method, errors.New("method not allowed"))
 		return
 	}
 
-	width, height, imgURI, err := parseURL(r)
+	img, err := parseURL(r.URL)
 	if err != nil {
 		httpBadRequest(w, "cannot parse request URL params", err)
 		return
 	}
 
-	log.Info().Msgf("image requested: %dx%d %s ", width, height, imgURI)
-	// TODO check in cache
+	log.Info().Msgf("image requested: %dx%d %s ", img.Width, img.Height, img.URL)
 
-	client := http.Client{}
-	req, err := http.NewRequestWithContext(context.TODO(), "GET", imgURI, strings.NewReader(""))
+	err = h.cache.GetWithContext(r.Context(), img, r.Header, w)
 	if err != nil {
-		httpInternalServerError(w, "cannot create new request to remote host", err)
-		return
-	}
-	copyHeaders(req.Header, r.Header)
-
-	resp, err := client.Do(req)
-	if err != nil {
-		httpRemoteServerError(w, "remote server unreachable", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	img, err := resizer.Resize(width, height, resp.Body)
-	if err != nil {
-		httpInternalServerError(w, "cannot resize image", err)
-		return
-	}
-	_, err = io.Copy(w, img)
-	if err != nil {
-		httpInternalServerError(w, "cannot deliver image", err)
-		return
-	}
-
-	// TODO add to cache
-}
-
-func copyHeaders(dst, src http.Header) {
-	for k, vv := range src {
-		for _, v := range vv {
-			dst.Add(k, v)
-		}
+		httpInternalServerError(w, "internal server error", err)
 	}
 }
 
-func parseURL(r *http.Request) (width int, height int, imgURL string, err error) {
-	// Parse desired image width
+func parseURL(uri *url.URL) (models.Image, error) {
 	var head string
-	head, r.URL.Path = shiftPath(r.URL.Path)
-	width, err = strconv.Atoi(head)
-	if err != nil {
-		return
+	var img models.Image
+	var err error
+	// Parse desired image width
+	head, uri.Path = shiftPath(uri.Path)
+	if img.Width, err = strconv.Atoi(head); err != nil {
+		return models.Image{}, err
 	}
 
 	// Parse desired image height
-	head, r.URL.Path = shiftPath(r.URL.Path)
-	height, err = strconv.Atoi(head)
-	if err != nil {
-		return
+	head, uri.Path = shiftPath(uri.Path)
+	if img.Height, err = strconv.Atoi(head); err != nil {
+		return models.Image{}, err
 	}
 
 	// Parse desired image URL
-	remoteURL := "http://" + strings.TrimPrefix(r.URL.Path, "/")
-	imgURI, err := url.ParseRequestURI(remoteURL)
+	img.URL = "http://" + strings.TrimPrefix(uri.Path, "/")
+	imgURI, err := url.ParseRequestURI(img.URL)
 	if err != nil {
-		return
+		return models.Image{}, err
 	}
 
 	if imgURI.Host == "" {
-		return
+		return models.Image{}, errors.New("no host provided")
 	}
 
-	return width, height, imgURI.String(), nil
+	return img, nil
 }

@@ -3,7 +3,7 @@ package router
 import (
 	"net/http"
 
-	"github.com/avbru/image-previewer/internal/cache"
+	"github.com/avbru/image-previewer/internal/services"
 )
 
 type rootHandler struct {
@@ -11,7 +11,7 @@ type rootHandler struct {
 	apiHandler  apiHandler
 }
 
-func newRootHandler(cache cache.Cache) rootHandler {
+func newRootHandler(cache services.CacheService) rootHandler {
 	return rootHandler{
 		fillHandler: newFillHandler(cache),
 		apiHandler:  newAPIHandler(cache),

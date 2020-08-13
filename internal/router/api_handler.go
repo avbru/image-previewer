@@ -1,27 +1,37 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 
-	"github.com/avbru/image-previewer/internal/cache"
+	"github.com/avbru/image-previewer/internal/services"
 )
 
 type apiHandler struct {
-	cache cache.Cache
+	cache services.CacheService
 }
 
-func newAPIHandler(cache cache.Cache) apiHandler {
+func newAPIHandler(cache services.CacheService) apiHandler {
 	return apiHandler{
 		cache: cache,
 	}
 }
 
 func (h apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		httpMethodNotAllowed(w, r.Method, errors.New(" method not allowed"))
+		return
+	}
 	var head string
 	head, r.URL.Path = shiftPath(r.URL.Path)
 	switch head {
 	case "stats":
-		// TODO
+		stats, err := h.cache.GetStats()
+		if err != nil {
+			httpInternalServerError(w, "can't get stats", err)
+			return
+		}
+		httpJSON(w, stats)
 	case "samples":
 		if _, err := w.Write([]byte(html)); err != nil {
 			httpInternalServerError(w, "", err)
@@ -32,7 +42,6 @@ func (h apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO Refactor to html.Template.
 const html = `
 <!DOCTYPE HTML>
 <html>

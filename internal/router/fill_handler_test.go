@@ -5,8 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/avbru/image-previewer/internal/mocks"
+	"github.com/avbru/image-previewer/internal/models"
 
 	"github.com/stretchr/testify/require"
 )
@@ -62,7 +66,7 @@ var fillTests = []struct {
 	{
 		method:         "GET",
 		url:            "/fill/200/300/non-existing-site.com",
-		wantStatusCode: http.StatusUnprocessableEntity,
+		wantStatusCode: http.StatusInternalServerError,
 		wantBody:       "",
 	},
 	{
@@ -74,7 +78,10 @@ var fillTests = []struct {
 }
 
 func Test_FillHandler(t *testing.T) {
-	srv := httptest.NewServer(newRootHandler(nil))
+	cacheService := mocks.CacheServiceMock{}
+
+	srv := httptest.NewServer(newRootHandler(&cacheService))
+
 	client := http.Client{}
 	for _, tt := range fillTests {
 		tCase := tt
@@ -88,10 +95,52 @@ func Test_FillHandler(t *testing.T) {
 
 			body, err := ioutil.ReadAll(resp.Body)
 			require.NoError(t, err)
-
-			require.NoError(t, err)
 			require.Equal(t, tCase.wantStatusCode, resp.StatusCode)
 			require.Contains(t, string(body), tCase.wantBody)
+		})
+	}
+}
+
+var urlTests = []struct {
+	url     string
+	wantErr bool
+	wantImg models.Image
+}{
+	{
+		url:     "",
+		wantErr: true,
+	},
+	{
+		url:     "100/dd/dd",
+		wantErr: true,
+	},
+	{
+		url:     "100/100/?",
+		wantErr: true,
+	},
+	{
+		url:     "100/100/yandex.ru/logo.jpg",
+		wantErr: false,
+		wantImg: models.Image{
+			Width:  100,
+			Height: 100,
+			URL:    "http://yandex.ru/logo.jpg",
+		},
+	},
+}
+
+func Test_ParseURL(t *testing.T) {
+	for _, tt := range urlTests {
+		tCase := tt
+		t.Run(tCase.url, func(t *testing.T) {
+			uri := url.URL{
+				Path: tCase.url,
+			}
+			img, err := parseURL(&uri)
+			if tCase.wantErr {
+				require.Error(t, err)
+			}
+			require.Equal(t, tCase.wantImg, img)
 		})
 	}
 }
