@@ -9,17 +9,15 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/disintegration/imaging"
-
-	"github.com/avbru/image-previewer/internal/cache/lru"
-	"github.com/avbru/image-previewer/internal/storages/filestorage"
-
-	"github.com/avbru/image-previewer/internal/models"
-	"github.com/rs/zerolog/log"
-
 	"github.com/avbru/image-previewer/internal/cache"
+	"github.com/avbru/image-previewer/internal/cache/lru"
+	"github.com/avbru/image-previewer/internal/models"
 	"github.com/avbru/image-previewer/internal/resizer"
 	"github.com/avbru/image-previewer/internal/storages"
+	"github.com/avbru/image-previewer/internal/storages/filestorage"
+
+	"github.com/disintegration/imaging"
+	"github.com/rs/zerolog/log"
 )
 
 type CacheService struct {
