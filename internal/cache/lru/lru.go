@@ -12,7 +12,7 @@ type cacheItem struct {
 
 // LRU is simple LRU cache with doubly linked list under the hood.
 type LRU struct {
-	sync.Mutex
+	sync.RWMutex
 	cap   int
 	list  *list.List
 	items map[interface{}]*list.Element
@@ -76,7 +76,7 @@ func (c *LRU) Clear() {
 
 // Len returns current cache size.
 func (c *LRU) Len() int {
-	c.Lock()
-	defer c.Unlock()
+	c.RLock()
+	defer c.RUnlock()
 	return c.list.Len()
 }
